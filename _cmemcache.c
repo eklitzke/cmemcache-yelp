@@ -415,8 +415,8 @@ cmemcache_get_imp(PyObject* pyself, PyObject* args, int retFlags)
         retval = Py_None;
     }
 
-	PyObject* recv_bytes = PyInt_FromSsize_t((Py_ssize_t) res->bytes);
-	PyObject_SetAttrString(self, "recv_bytes", recv_bytes);
+    PyObject* recv_bytes = PyInt_FromSsize_t((Py_ssize_t) res->bytes);
+    PyObject_SetAttrString(self, "recv_bytes", recv_bytes);
 
     mcm_req_free(self->mc_ctxt, req);
     return retval;

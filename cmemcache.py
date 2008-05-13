@@ -94,7 +94,7 @@ class Client(StringClient):
         """
         StringClient.__init__(self, servers)
         self.debug = debug
-		self.recv_bytes = 0
+        self.recv_bytes = 0
     
     def _convert(self, val):
         """
