@@ -1,0 +1,2547 @@
+2006-02-09 00:51  sean@gigave.com
+
+	* src/memcache.c: > 2. I believe the mcm_get / mcm_fetch_cmd
+	  combination computes hashes
+	  > more than once. Adding at least a "if (res->hash == 0)" at the
+	  > beginning of the loop in mcm_fetch_cmd should save a few
+	  cycles. Most
+	  > probably it's actually not needed at all, but I don't know the
+	  code
+	  > enough to be sure (especially with the "shortcuts").
+	  >
+	  > 3. You may use TAILQ_FOREACH for that loop (for readability)
+	  and the
+	  > "i" variable does not seem to be used in any way (it's
+	  probably a
+	  > leftover from an older version?)
+	  >
+	  > 4. The two callback calls are confusing at first, a quick
+	  additional
+	  > comment may be useful.
+	  >
+	  > 5. The code presumes that the server will send keys in the
+	  order they
+	  > were requested. Even though that is the case at the moment
+	  with the
+	  > standard server, the protocol description does not guarantee
+	  this.
+	  
+	  Submitted by: Jacques Caron <jc@oxado.com>
+
+2005-11-29 19:50  sean@gigave.com
+
+	* src/memcache.c: Chrys Hyde pointed out one read(2) call that
+	  wasn't wrapped by a
+	  select(2) call. Fix and address this.
+
+2005-11-29 18:43  sean@gigave.com
+
+	* src/buffer.c, src/memcache.c: Fix typeos in two of the previous
+	  bug-fix commits.
+
+2005-11-29 18:41  sean@gigave.com
+
+	* src/buffer.c: Fix a bug in large multi-get requests.
+
+2005-11-29 18:40  sean@gigave.com
+
+	* src/memcache.c: Fix multi-get when there are missing keys in a
+	  multiget key list.
+
+2005-11-29 18:36  sean@gigave.com
+
+	* configure.ac, include/memcache.h.in, src/memcache.c: Fix
+	  compilation on Solaris systems.
+	  
+	  Fix interrupted system calls.
+	  
+	  Clear errors on connections in the attempt to reuse an
+	  established
+	  connection.
+	  
+	  With these changes, dead servers should no longer be problematic.
+
+2005-11-28 20:55  sean@gigave.com
+
+	* include/memcache.h.in, src/memcache.c: Fix a few server timeout
+	  issues. Old code was using '&' and new code
+	  needs to use '|'. Funny how the meaning changes between the two.
+
+2005-10-13 22:22  sean@gigave.com
+
+	* src/memcache.c: Initialize the context in the context allocation
+	  routine and not in
+	  mcm_new().
+	  
+	  Pointed out by: John McCaskey
+
+2005-09-26 12:23  sean@gigave.com
+
+	* src/memcache.c: There are days when I just can't win... fix
+	  get_line() correctly,
+	  including scanning optimization.
+
+2005-09-25 18:10  sean@gigave.com
+
+	* configure.ac, include/memcache, test/benchmark: Stamp 1.4.0b9.
+	  
+	  Add a few more files for svn(1) to ignore.
+
+2005-09-25 18:08  sean@gigave.com
+
+	* configure.ac, include/Makefile.am, include/_buffer.h,
+	  include/buffer.h, include/memcache, include/memcache.h.in,
+	  include/memcache/Makefile.am, include/memcache/_buffer.h,
+	  include/memcache/buffer.h, src/buffer.c, src/memcache.c: Move
+	  include/buffer.h and include/_buffer.h into include/memcache/.
+	  Users of 1.4 should remove include/buffer.h and include/_buffer.h
+	  since they are now stale include files.
+	  
+	  Introduce a few cleanups from pibm by making more judicious use
+	  of
+	  mcm_get_line() instead of using "foo + MCM_CSTRLEN("\r\n")".
+	  This
+	  eliminates any degree of trust necessary to scanning data. I'm
+	  a bit
+	  skeptical of some of these changes, but have had him report
+	  success
+	  with them in production (to date I have been unable to reproduce
+	  these
+	  kinds of bugs).
+	  
+	  This is the last change to the library that I'm going to make
+	  before
+	  introducing mmap(2)'ed buffers.
+
+2005-09-25 17:31  sean@gigave.com
+
+	* include/buffer.h, src/buffer.c: Mark a few of the more simple
+	  math functions inline.
+
+2005-09-24 16:44  sean@gigave.com
+
+	* configure.ac: Stamp 1.4.0b8. Hopefully this is the last of
+	  these buggers.
+
+2005-09-24 16:43  sean@gigave.com
+
+	* m4/acinclude.m4: Tired of having my regen script fail, fix
+	  permanently.
+
+2005-09-24 16:27  sean@gigave.com
+
+	* src/memcache.c: Fix the last of the short read problems acording
+	  to Scott Wilson.
+
+2005-09-19 17:14  sean@gigave.com
+
+	* configure.ac: Roll 1.4.0b7
+	* src/buffer.c: Fix a small bug with buffer debugging.
+
+2005-09-19 17:12  sean@gigave.com
+
+	* src/memcache.c: Fix ultra-braino. Meant to say, size greater
+	  than or equal to, not
+	  less than or equal to.
+	  
+	  Pointy hat to: sean@
+	  Submitted by: Scott Wilson
+
+2005-09-16 16:57  sean@gigave.com
+
+	* COPYING, INSTALL, Makefile.am, configure.ac, doc/Makefile.am,
+	  doc/memcache.4, include/Makefile.am, include/_buffer.h,
+	  include/buffer.h, m4/Makefile.am, regen, src/Makefile.am,
+	  src/buffer.c, src/crc32_table.h, test/Makefile.am,
+	  test/benchmark/Makefile.am, test/benchmark/benchmark.c,
+	  test/buffer_recycle/Makefile.am,
+	  test/buffer_recycle/buffer_recycle.c, test/long_val/Makefile.am,
+	  test/long_val/long_val.c, test/regress/Makefile.am,
+	  test/regress/regress.c, test/unit/Makefile.am,
+	  test/unit/check_buffer.c: Remove Nexadesic RCS tags.
+
+2005-09-16 06:06  sean@gigave.com
+
+	* configure.ac, include/memcache.h.in, src/memcache.c: Use #define
+	  macros where appropriate to mask the need for developers
+	  to be consistent with the function signature. Instead, they
+	  just need
+	  to use these macros and they'll be automatically covered from
+	  source
+	  incompatibility problems.
+	  
+	  Begin the 1.4.0.b6 stamp process.
+	  
+	  Move check for hashing of keys from the caller into the
+	  mcHashKey()
+	  function, which is actually implemented by mcm_hash_key_func().
+	  Gives
+	  other hash producers the opportunity to override this
+	  functionality
+	  and ensure that it always hashes, if they so choose.
+
+2005-09-10 14:39  sean@gigave.com
+
+	* src/memcache.c, test/redundant_server,
+	  test/redundant_server/redundant_server.c: Few fixes to make sure
+	  that server failover works when desired, but
+	  can easily be disabled with the server find function.
+
+2005-09-10 13:47  sean@gigave.com
+
+	* .cvsignore, doc/.cvsignore, include/.cvsignore, m4/.cvsignore,
+	  src/.cvsignore, test/.cvsignore, test/benchmark/.cvsignore,
+	  test/buffer_recycle/.cvsignore, test/long_val/.cvsignore,
+	  test/regress/.cvsignore, test/unit/.cvsignore: Remove .cvsignore
+	  files, subversion uses a "svn:ignore" property
+	  instead. Was using svn:ignore before, but was keeping .cvsignore
+	  files around for some reason. *shrug*
+
+2005-09-10 07:40  sean@gigave.com
+
+	* configure.ac, include/memcache.h.in, src/memcache.c,
+	  test/Makefile.am, test/redundant_server,
+	  test/redundant_server/Makefile.am,
+	  test/redundant_server/redundant_server.c: Add a test for server
+	  redundancy
+
+2005-09-04 00:31  sean@gigave.com
+
+	* include/memcache.h.in, src/memcache.c: Add mc_aget2() and
+	  mcm_aget2(). *_aget2() behaves the same as
+	  *_aget(), except that the last arg of *_aget2() is a pointer to a
+	  size_t variable that will have the size of the return value set
+	  if the
+	  pointer is non-null.
+
+2005-09-01 18:34  sean@gigave.com
+
+	* configure.ac, include/memcache.h.in, src/memcache.c: Move all
+	  misc pointers to the top of their respective structures that
+	  way they all exist in the same offset in all structures that have
+	  'void *misc' members.
+	  
+	  Provide a client tweakable function pointer so that clients can
+	  override the key hashing function and the server lookup function
+	  (takes the hash to calculate the server in the server list).
+	  
+	  Change mc_hash_key(), mc_server_find(), mcm_hash_key(), and
+	  mcm_server_find() so that it makes use of the above function
+	  pointers.
+	  
+	  Add a retry to the read() calls so that we don't loop forever
+	  when
+	  sucking in data and trashing it. Hard coded 3 retries.
+
+2005-08-25 01:15  sean@gigave.com
+
+	* configure.ac: Release 1.4.0b5 with various memory fixes.
+
+2005-08-25 01:14  sean@gigave.com
+
+	* src/memcache.c: Free error contexts when free(3)'ing a given
+	  memcache context.
+
+2005-08-24 22:27  sean@gigave.com
+
+	* test/benchmark/benchmark.c,
+	  test/buffer_recycle/buffer_recycle.c: Plug a few memory leaks in
+	  the regression libraries.
+
+2005-08-24 22:22  sean@gigave.com
+
+	* src/memcache.c: Catch a free-on-delete error.
+
+2005-08-24 21:08  sean@gigave.com
+
+	* src/memcache.c: Fix memory allocation problem with server lists.
+
+2005-08-24 08:38  sean@gigave.com
+
+	* src/buffer.c: Replace a few magic numbers w/ more correct
+	  sizeof() replacements.
+
+2005-08-24 06:28  sean@gigave.com
+
+	* src/memcache.c: Make use of mcm_strndup() where appropriate when
+	  dup'ing data.
+	  
+	  Pad the server list with a trailing NULL slot.
+
+2005-08-23 07:53  sean@gigave.com
+
+	* Makefile.am, configure.ac: Stamp 1.4.0b4.
+	  
+	  Remove various cvs dependencies, memcache(3) is now under
+	  subversion's
+	  control.
+
+2005-08-23 07:51  sean@gigave.com
+
+	* include/memcache.h.in, src/memcache.c: Use the mc_const macro in
+	  mcm_strnstr() instead of just const. We
+	  don't ever modify the argument, but we return a value that we
+	  try to
+	  cast through (char *), but newer gcc(1)'s are complaining. :-/
+	  This
+	  is a sufficient workaround given we know we're not changing the
+	  data.
+
+2005-08-23 07:36  sean@gigave.com
+
+	* src/memcache.c: Loosen up memcache(3)'s protocol parsing so that
+	  it scans for the
+	  first part of the line and doesn't necessarily throw an error if
+	  an
+	  additional chunk of data comes back from the server. Ie:
+	  
+	  "NOT_STORED\r\n"
+	  "NOT_STORED some reason\r\n"
+	  
+	  Will now be handled gracefully by the client. This is important
+	  in
+	  the off chance you've hacked up memcached(8)... *whistles
+	  innocently*
+
+2005-08-23 07:24  sean@gigave.com
+
+	* include/memcache.h.in: Include some implementation/cationary
+	  advice for people using
+	  memcache(3) in multi-memory context environments that will be
+	  using
+	  struct memcache_ctxt.
+
+2005-08-23 07:01  sean@gigave.com
+
+	* src/memcache.c: Fix mcm_server_deactivate() to take into account
+	  down servers. Fix an
+	  off-by-one error in mcm_server_find() that was causing problems
+	  when
+	  detecting when a server hash index needed to be wrapped.
+	  
+	  Submitted by: Scott Wilson <scott.wilson@gmail.com>
+
+2005-08-22 21:05  sean@gigave.com
+
+	* client-branches/RELEASE_1_3, .: Move the RELEASE_1_3 client to
+	  be known as "lib"
+
+2005-08-19 16:17  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/include/Makefile.am,
+	  client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/buffer.c,
+	  client-branches/RELEASE_1_3/src/memcache.c: Poach FreeBSD's
+	  strnstr(3) function and rename it to mcm_strnstr(). This
+	  should fix the build on Linux...
+
+2005-08-19 11:08  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/regen: Conditionalize the need for
+	  check(3)
+
+2005-08-19 10:43  sean
+
+	* client-branches/RELEASE_1_3/configure.ac: Stamp 1.4.0 beta2.
+
+2005-08-19 10:42  sean
+
+	* client-branches/RELEASE_1_3/test/regress/regress.c: Use warnx(3)
+	  instead of warn(3) for non-system call warnings. Cleanup the
+	  output to be a tad nicer too... think fping(1).
+
+2005-08-19 10:40  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Fix callbacks so
+	  they work again.
+
+2005-08-19 10:20  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Fix multi-key get's.
+	  Along the way, reduce the number of malloc(3) calls
+	  considerably in the event of a multi-key request. Previously,
+	  there was
+	  one malloc(3) call per server in the server list, now there's
+	  only one
+	  malloc(3) call per key in the request. Eventually these bits
+	  should be
+	  recycled, but aren't at the moment.
+
+2005-08-19 09:53  sean
+
+	* client-branches/RELEASE_1_3/test/unit/check_buffer.c: Fix up a
+	  handful of errors now that the server is preallocating its
+	  read/write buffers
+
+2005-08-19 09:51  sean
+
+	* client-branches/RELEASE_1_3/test/long_val/long_val.c: Cleanup
+	  the long_val test.
+
+2005-08-19 09:39  sean
+
+	* client-branches/RELEASE_1_3/Makefile.am: Not that I'm bitter
+	  about discovering this or anything, but, when performing
+	  tests, renice the memcached(8) procs to +20 until a solution is
+	  found.
+	* client-branches/RELEASE_1_3/include/buffer.h,
+	  client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/buffer.c,
+	  client-branches/RELEASE_1_3/src/memcache.c: Nuke all reminants
+	  of recycling buffers. Better to just reset them if
+	  the buffer length matches the offset.
+
+2005-08-19 09:37  sean
+
+	* client-branches/RELEASE_1_3/test/benchmark/benchmark.c: Move the
+	  filter commands to after a struct memcache object has been
+	  successfully created.
+
+2005-08-19 08:13  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Finally commit my
+	  handful of memcache server list fixes... this code isn't
+	  perfect, but I'm tot he point that I need to start running w/
+	  some diff's and
+	  need the code in tree. Multi-get's are pretty busted right now,
+	  but everything
+	  else should work okay if you've only got one server.
+	  
+	  Also integrate a few protocol syncro fixes.
+
+2005-08-19 06:04  sean
+
+	* client-branches/RELEASE_1_3/test/benchmark/benchmark.c: Spell
+	  "Key" like "Value"
+
+2005-08-19 06:02  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/buffer.c: With much pleasure and
+	  irritation, I'm pleased to announce that I've removed
+	  the retry count option. If you renice the memcached(8) process
+	  to +20,
+	  the client ceases to have problems.
+	  
+	  Value size: 1
+	  Num tests: 1000000
+	  Test Ops per second Total Time Time per Request
+	  set 10116.708678 98.846377 0.000099
+	  get 10275.019845 97.323413 0.000097
+	  add 9584.252383 104.337820 0.000104
+	  delete 11601.121606 86.198562 0.000086
+	  
+	  Value size: 10
+	  Num tests: 10000
+	  Test Ops per second Total Time Time per Request
+	  set 9722.576016 1.028534 0.000103
+	  get 10315.127134 0.969450 0.000097
+	  add 10001.140130 0.999886 0.000100
+	  delete 11778.452029 0.849008 0.000085
+	  
+	  Value size: 10
+	  Num tests: 100000
+	  Test Ops per second Total Time Time per Request
+	  set 10101.245797 9.899769 0.000099
+	  get 10296.571108 9.711971 0.000097
+	  add 9838.724610 10.163919 0.000102
+	  delete 11672.163478 8.567392 0.000086
+
+2005-08-19 05:41  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Nuke some iovec
+	  remains.
+	  
+	  Change the signature for mcm_server_new() to use a non-const
+	  ctxt.
+	  
+	  Redefine the way that MCM_CLEAN_BUFS work by having it reset a
+	  given buffer
+	  if the buffer's offset is the same length as the length of the
+	  buffer.
+	  
+	  Fix various protocol handling routines so that everything
+	  checks-out on my
+	  laptop... now to go break things on my desktop.
+
+2005-08-19 05:39  sean
+
+	* client-branches/RELEASE_1_3/include/buffer.h,
+	  client-branches/RELEASE_1_3/src/buffer.c: Add a handy function
+	  that I used, but have since removed... but I don't mind
+	  having the code hang around anyway. mcm_buf_eat_line(). It
+	  sets the offset
+	  to be just beyond the end of a given line. I may remove it
+	  later, but it
+	  gives me warm fuzzies right now.
+
+2005-08-18 23:31  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Print out the
+	  current line in the event of a protocol error in the delete
+	  command.
+	  
+	  Only block for readability/writablility if a read/write command
+	  fails.
+	  
+	  Make the readable/writable commands block until data is
+	  available.
+
+2005-08-18 22:38  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Nuke
+	  mcm_retrieve_data. In its place, flush out mcm_fetch_cmd() so
+	  that it
+	  handles reading data from a server correctly. Make heavy use of
+	  mcm_read_fd()
+	  to solve/make this happen.
+
+2005-08-18 22:35  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in: Add
+	  TAILQ_FOREACH() to the list of macros.
+
+2005-08-18 22:32  sean
+
+	* client-branches/RELEASE_1_3/include/buffer.h,
+	  client-branches/RELEASE_1_3/src/buffer.c,
+	  client-branches/RELEASE_1_3/test/unit/check_buffer.c: Add a new
+	  function, mcm_buf_remain_off() that returns the difference of the
+	  offset and buffer length (not size). This function is meant to
+	  be used when
+	  scanning a buffer. This function isn't to be confused with
+	  mcm_buf_remain()
+	  which returns the difference of the size and length, which is
+	  used when
+	  read(2)'ing data.
+	  
+	  Fixed my primary bug: buffer flags are stored in the flags
+	  member, not the
+	  off structure. This was quite frustrating since my eye kept
+	  glossing over
+	  the problem. Unit test added.
+
+2005-08-16 23:05  sean
+
+	* client-branches/RELEASE_1_3/include/buffer.h,
+	  client-branches/RELEASE_1_3/src/buffer.c,
+	  client-branches/RELEASE_1_3/src/memcache.c: Add mcm_buf_read()
+	  which read(2)'s data from a file descriptor and places
+	  the data into a buffer.
+	  
+	  Fix some brain-o's in mcm_buf_realloc().
+	  
+	  Overhaul mcm_get_line() to make use of mcm_buf_read().
+	  
+	  There are some changes to mcm_retrieve_data() that need to be
+	  discarded, but
+	  are going to be rewritten in a few minutes.
+
+2005-08-16 07:39  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Add mc_global_ctxt()
+	  which returns the pointer to the global context for
+	  folks that want to use the mc_*() functions but sometimes need
+	  to use the
+	  mcm_*() funcs
+
+2005-08-16 07:36  sean
+
+	* client-branches/RELEASE_1_3/test/unit/check_buffer.c: Add a host
+	  of unit tests for my buffer library
+
+2005-08-16 06:13  sean
+
+	* client-branches/RELEASE_1_3/test/unit/Makefile.am: Don't mark
+	  check_buffer as a noinst_PROGRAM that way this target isn't
+	  built when doing a standard make and only gets built when using
+	  the check
+	  target.
+
+2005-08-16 06:04  sean
+
+	* client-branches/RELEASE_1_3/test/benchmark/benchmark.c: Add
+	  support to conditionally execute various tests. It's crude, but
+	  will suffice for the time being.
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Add retry limit for
+	  failed read(2) attempts. This code shouldn't exist, but
+	  for the time being I'll tollerate it.
+	  
+	  Add a per-server timeout.
+	  
+	  Begin to fix a few IO cases.
+
+2005-08-16 06:01  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/regen,
+	  client-branches/RELEASE_1_3/test/Makefile.am,
+	  client-branches/RELEASE_1_3/test/unit,
+	  client-branches/RELEASE_1_3/test/unit/.cvsignore,
+	  client-branches/RELEASE_1_3/test/unit/Makefile.am,
+	  client-branches/RELEASE_1_3/test/unit/check_buffer.c: Add
+	  support for check(3) - a C unit testing library that doesn't
+	  suck (yet).
+	  
+	  Add a hard-retry limit before a command is resent to a server.
+	  It defaults to
+	  two, but is some rather evil code that should disappear soonish.
+
+2005-08-12 15:25  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: When issuing a
+	  delete command, only append the hold-timer if the value is
+	  non-zero.
+
+2005-08-12 15:17  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Make sure we call
+	  MCM_CLEAN_BUFS() before every appropriate return call
+	  where we grab a new buf.
+	  
+	  Switch to using non-blocking IO.
+
+2005-08-12 14:23  sean
+
+	* client-branches/RELEASE_1_3/src/buffer.c,
+	  client-branches/RELEASE_1_3/src/memcache.c: Add a few missing
+	  functions that the linker didn't detect were missing.
+	  
+	  Fix a handful of bugs. The benchmark and buffer_recycle
+	  programs now work
+	  as expected, though I can only test against memcached(8) without
+	  kqueue(2)
+	  so I'm not sure if I'm missing something because of the lack of
+	  performance.
+
+2005-08-12 04:13  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/doc/memcache.4,
+	  client-branches/RELEASE_1_3/include/_buffer.h,
+	  client-branches/RELEASE_1_3/include/buffer.h,
+	  client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/regen,
+	  client-branches/RELEASE_1_3/src,
+	  client-branches/RELEASE_1_3/src/.cvsignore,
+	  client-branches/RELEASE_1_3/src/Makefile.am,
+	  client-branches/RELEASE_1_3/src/buffer.c,
+	  client-branches/RELEASE_1_3/src/memcache.c: OMG, I pitty the
+	  person that tries to comprehend this diff. Really, I'm
+	  sorry. `cvs di | wc -l` >> 2695. I really am sorry... mainly to
+	  myself,
+	  diff's past this point are going to be impossible to tease apart.
+	  
+	  *) Prep for a 1.4.0.b1 release... too many changes have gone in
+	  here to
+	  even consider calling this 1.3.0
+	  
+	  *) Add my buffer management library that I wrote once upon a
+	  time for a
+	  programming language I was working on.
+	  
+	  *) Introduce recyclable buffers into struct memcache_ctxt.
+	  
+	  *) Nuke the single buffer and iovec struct. Instead, we have a
+	  read(2)
+	  buffer and a separate write(2) buffer. The singular circular
+	  buffer is
+	  now officially dead. Long live efficient appends. cord(3)
+	  anyone?
+	  
+	  *) Move the MCM_ERR*() macros into memcache.h that way I can use
+	  them from
+	  my buffer routines. I don't use them as much as I should.
+	  
+	  *) Move from using an iovec struct to the memcache_buf structs.
+	  Ugliness
+	  and a huge, sweeping change.
+
+2005-08-11 00:51  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Validate all keys at
+	  all points of entry into the library.
+	* client-branches/RELEASE_1_3/include/memcache.h.in: Force
+	  memcache.h.in to be treated as a C file.
+
+2005-07-29 04:56  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Release memcache
+	  1.3.0 rc2.
+	  
+	  Add a method for validating keys. Keys can be changed in this
+	  function,
+	  but all changes must be inline and all key changes will change
+	  the
+	  master/original string. Intended purpose was to catch keys with
+	  an included
+	  space without sending an actual protocol error out over the
+	  wire, however
+	  language authors can use this method to convert spaces to
+	  underbars.
+	  
+	  Make this method for the above test a function pointer that
+	  users can
+	  install. The default function uses isspace(3) and returns an
+	  error at the
+	  character that contained the space (ie, if the first character
+	  contains a
+	  space, the return value is one. If the second character is a
+	  space, then
+	  the function will return a two).
+
+2005-07-29 01:00  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: These are not the
+	  droids you're looking for. Add client side support for
+	  the "listen" command. As of yet, this server-side command has
+	  not been
+	  released to the public.
+	  
+	  Hide a few more of my other "refresh" bits behind #ifdef
+	  SEAN_HACKS.
+
+2005-07-29 00:53  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Create a per context
+	  error context.
+	  
+	  Implement customizable return codes. Error handlers can now set
+	  retcode
+	  in the error context and functions that return some form of an
+	  integer will
+	  now return the value stored in retcode if the value is non-zero.
+
+2005-07-28 22:32  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Fix a fantastic
+	  off-by-one bug in parsing responses.
+	  
+	  Fixed by: Howard Lee
+
+2005-06-07 18:26  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in: Newer GCC
+	  versions are giving me crap about return types being ignored on
+	  integers.
+
+2005-05-24 10:46  sean
+
+	* client-branches/RELEASE_1_3/configure.ac: Stamp 1.3.0 beta9
+
+2005-05-24 10:30  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Fix those god damn,
+	  mother fucking protocol errors. Pardon my french.
+	  Problem was due to a partial read that was looking ahead too far
+	  in its
+	  buffer. Ie, the parser was looking at "\r" and peaking ahead to
+	  see if it
+	  was "\r\n", and was throwing a kanipshit if it couldn't find
+	  it's newline.
+	  
+	  There were a few other oddities that I've addressed. I've
+	  extensively
+	  tested this now with a default buffer size of one byte and have
+	  run tests
+	  with that byte side, and a few others, all the way up to 16K and
+	  feel
+	  rather confident that this issue has been addressed. Yay!
+
+2005-05-24 10:21  sean
+
+	* client-branches/RELEASE_1_3/test/long_val/long_val.c: Fix up my
+	  long_val test so that it uses:
+	  
+	  sizeof("key")
+	  
+	  instead of:
+	  
+	  char *key = "key";
+	  sizeof(key);
+
+2005-05-22 17:54  sean
+
+	* client-branches/RELEASE_1_3/configure.ac: Test for variadic
+	  macro support. Conditionalize protocol debugging on the
+	  presence of variadic macros.
+
+2005-05-22 16:51  sean
+
+	* client-branches/RELEASE_1_3/Makefile.am: Add a quick disthook
+	  that removes the regen file from public tarballs.
+
+2005-05-21 03:59  sean
+
+	* client-branches/RELEASE_1_3/test/buffer_recycle/buffer_recycle.c:
+	  Enable some debugging output by removing the default error
+	  masks.
+
+2005-05-21 03:51  sean
+
+	* client-branches/RELEASE_1_3/configure.ac: Remove
+	  -Wdisabled-optimization from CFLAGS. Had this in there twice and
+	  only removed one of the flags. *blush*
+	* client-branches/RELEASE_1_3,
+	  client-branches/RELEASE_1_3/.cvsignore: Ignore distfiles
+
+2005-05-21 03:47  sean
+
+	* client-branches/RELEASE_1_3/configure.ac: Test to see if $CC
+	  supports -std=c99, -Wpacked, and -Wdisabled-optimization.
+	  This should make life easier for people still using GCC < 2.95.X.
+
+2005-05-21 03:06  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Change the
+	  timestamps in error messages to be fixed width (pad with zeros).
+	  
+	  Apply the same fix provided by McCaskey to all memchr(3) calls.
+
+2005-05-21 02:51  sean
+
+	* client-branches/RELEASE_1_3/test/buffer_recycle,
+	  client-branches/RELEASE_1_3/test/buffer_recycle/.cvsignore: Add
+	  a quick .cvsignore for the buffer recycle test.
+
+2005-05-21 02:32  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Handle the case
+	  where a signal is delivered and interrupts a select(2) call.
+
+2005-05-21 01:03  sean
+
+	* client-branches/RELEASE_1_3/Makefile.am,
+	  client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/test/Makefile.am,
+	  client-branches/RELEASE_1_3/test/buffer_recycle,
+	  client-branches/RELEASE_1_3/test/buffer_recycle/Makefile.am,
+	  client-branches/RELEASE_1_3/test/buffer_recycle/buffer_recycle.c:
+	  Add a problem test.
+	  
+	  Obtained from: Cimarron Taylor, FilmLoop
+
+2005-05-21 00:43  sean
+
+	* client-branches/RELEASE_1_3/configure.ac: Roll 1.3.0.beta8.
+	  Many critical fixes... still not flawless... there's
+	  one more that I'm still hunting before 1.3.0 rc1 gets stamped.
+
+2005-05-21 00:33  sean
+
+	* client-branches/RELEASE_1_3/test/long_val/long_val.c: Introduce
+	  a small presentation cleanup that lets the user know if the
+	  server couldn't find the given key.
+
+2005-05-20 23:48  sean
+
+	* client-branches/RELEASE_1_3/regen: Include a small test for
+	  acinclude.m4 as a reminder to myself. Also force
+	  the copy'ing of various bits. This frequently stomps on
+	  INSTALL, but I can
+	  deal with that for now.
+
+2005-05-20 23:45  sean
+
+	* client-branches/RELEASE_1_3/test/benchmark/benchmark.c: Nuke
+	  trailing whitespace.
+
+2005-05-20 23:44  sean
+
+	* client-branches/RELEASE_1_3/Makefile.am: Include a server on
+	  port 11214 in the list of servers to start.
+
+2005-05-20 23:32  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Remove the const
+	  modifier for the memcache_ctxt argument for a handful of
+	  mcm_server_add*() functions.
+	  
+	  Cast various timestamps in the default error handler to int.
+	  The lack of
+	  standard time representation in unix is starting to really piss
+	  me off.
+	  
+	  Add more debugging code than one should ever have to wade
+	  through or view.
+
+2005-05-20 19:06  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Introduce a timeout
+	  error code.
+	  
+	  Spell UNKNWON as UNKNOWN.
+	  
+	  Print out the severity if it's unkown and hide behind
+	  DEBUG_MC_PROTO.
+	  
+	  Add a timestamp to error messages.
+	  
+	  Add a ton of debugging info to mcm_server_readable() and
+	  mcm_server_writable().
+
+2005-05-20 16:14  sean
+
+	* client-branches/RELEASE_1_3/configure.ac,
+	  client-branches/RELEASE_1_3/test/Makefile.am,
+	  client-branches/RELEASE_1_3/test/long_val,
+	  client-branches/RELEASE_1_3/test/long_val/.cvsignore,
+	  client-branches/RELEASE_1_3/test/long_val/Makefile.am,
+	  client-branches/RELEASE_1_3/test/long_val/long_val.c: Add a test
+	  that set/get's values of increasing size and verifies the
+	  contents of the value.
+
+2005-05-20 14:08  sean
+
+	* client-branches/RELEASE_1_3/include/memcache.h.in,
+	  client-branches/RELEASE_1_3/src/memcache.c: Ditch the concept of
+	  a select(2) timeout. select(2) doesn't seem to be
+	  working correctly at the moment when a fd is marked as
+	  non-blocking, then
+	  passed to connect(2). I should be able to select(2) on the fd
+	  for when
+	  its writable, but it's always timing out. As such, keep the
+	  file descriptor
+	  in blocking mode until we've connect(2)'ed, then switch over to
+	  using a
+	  non-blocking fd. What a pain in the ass. kqueue(2) anyone?
+	  Coming soon...
+
+2005-05-20 08:38  sean
+
+	* client-branches/RELEASE_1_3/include/memcache,
+	  client-branches/RELEASE_1_3/include/memcache.h.in: Once upon a
+	  branch, far, far away, I did some repo surgery and moved a
+	  header around. Now that I'm back on a branch-tag that depends
+	  on this file
+	  pre-move, make a copy of the file. This may cause me headaches
+	  later, but,
+	  for now it gets me rolling again.
+
+2005-05-20 08:30  sean
+
+	* client-branches/RELEASE_1_3/regen: MFC: Update regen to contain
+	  updated auto* bits after a fink update on my
+	  laptop.
+
+2005-05-20 08:17  sean
+
+	* client-branches/RELEASE_1_3/src/memcache.c: Fix a small bug
+	  found by John McCaskey wherein memcache(3) would block
+	  improperly.
+
+2005-05-16 15:44  sean@gigave.com
+
+	* client-branches/RELEASE_1_3,
+	  client-branches/RELEASE_1_3/src/buffer.c: This commit was
+	  manufactured by cvs2svn to create branch 'RELEASE_1_3'.
+
+2005-05-02 10:02  sean
+
+	* client/test/benchmark/benchmark.c: Fix for non-c99 compilers.
+
+2005-05-02 09:58  sean
+
+	* client/Makefile.am, client/src/memcache.c: Cope with stone-age
+	  compilers.
+
+2005-05-02 09:48  sean
+
+	* client/configure.ac: Stamp 1.3.0.beta7. This isn't a flawless
+	  version, but it's the first
+	  version post-autofuck that I'd be semi-comfortable pushing out.
+	  
+	  The two oustanding issues are:
+	  
+	  There is an outstanding issue when using benchmark in that
+	  after a prolonged period of time, the client begins to
+	  ping-pong between select(2) and read(2).
+	  
+	  There's also an oustanding issue where it looks as though
+	  select(2) with a NULL timeout doesn't seem to ever return.
+	  
+	  Regardless, the performance times are down to nominal levels
+	  again.
+	  
+	  Key size: 50
+	  Num tests: 1000
+	  Test Ops per second Total Time Time per Request
+	  set 8651.117724 0.115592 0.000116
+	  get 8695.576560 0.115001 0.000115
+	  add 8441.881864 0.118457 0.000118
+	  delete 9559.315553 0.104610 0.000105
+
+2005-05-02 09:43  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: *)
+	  Replace -DPEDANTIC with --enable-mc-proto-debug's DEBUG_MC_PROTO
+	  
+	  *) Break the API by changing the args of
+	  mc[m]?_server_disconnect(). I may
+	  revisit this, but removing struct memcache from the arg list
+	  is the
+	  right thing to do since none of its downstream consumers used
+	  struct
+	  memcache.
+	  
+	  *) Add a few internal functions, mcm_server_(readable|writable)
+	  to begin
+	  to centralize handling of file-descriptor related activities.
+	  The
+	  various calls to select(2) floating around were giving me the
+	  creaps.
+	  
+	  *) Took the ugly-stick and beat the hell out of my code by
+	  adding scores of
+	  DEBUG_MC_PROTO bits.
+	  
+	  *) Centralize calls to close(2) in mcm_server_disconnect().
+
+2005-05-02 09:37  sean
+
+	* client/Makefile.am: The test target depends on the check target.
+
+2005-05-02 06:00  sean
+
+	* client/test/benchmark/benchmark.c: A few fixups for benchmark.c
+	  now that the key is a char* instead of a
+	  char[]. sizeof() seems to think the variable is of a different
+	  size.
+	  Imagine that. *grin*
+
+2005-05-02 05:59  sean
+
+	* client/Makefile.am, client/configure.ac: Automatically build a
+	  ChangeLog and include it in distributions.
+	  
+	  Reintroduce the 'reset' target which resets test versions of
+	  memcached.
+	  
+	  Change the automake(1) target from 'memcache' to 'libmemcache'
+	  for the sake
+	  of building distributions.
+	  
+	  Add a test for memcached(8).
+
+2005-05-02 05:20  sean
+
+	* client/Makefile.am: Fix small nit in auto* build process. Don't
+	  use test/* as a subdir, just
+	  list test.
+
+2005-05-02 05:19  sean
+
+	* client/regen: In the least elegant way possible, enable building
+	  of the autofuck bits
+	  on my powerbook.
+
+2005-05-02 05:17  sean
+
+	* client/configure.ac: Fix small nit in struct iovec detection on
+	  systems that don't include
+	  prerequisites.
+
+2005-05-02 04:30  sean
+
+	* client/Makefile.am, client/test/Makefile.am: Add a few targets
+	  to simplify running of tests.
+
+2005-05-02 03:25  sean
+
+	* client/test/benchmark/benchmark.c,
+	  client/test/regress/regress.c: Fix up a few warnings with
+	  various test programs.
+
+2005-05-02 03:23  sean
+
+	* client/configure.ac: Introduce all of the various auto* changes
+	  necessary to suppor the previous
+	  commit message.
+	  
+	  Add --enable-debug to turn on debugging CFLAGS.
+	  
+	  Add --enable-default-buf-size to configure the default
+	  buffer/read size
+	  buffer.
+	  
+	  Add --enable-hash-type which lets the client side hash type be
+	  changed
+	  easily at compile time. Valid values are "crc32", "elf", or
+	  "perl"
+	  
+	  Add --enable-mc-iovec to enable/disable the use of memcache's
+	  internal
+	  struct iovec. Autofuck should automatically detect the need/use
+	  of this,
+	  but, it should be automatically enabled on nearly all POSIX
+	  systems
+	  automatically.
+	  
+	  Add --enable-mc-proto-debug to the mix. It doesn't do anything
+	  at the
+	  moment, but will in a matter of hours. Joy.
+	  
+	  Add --enable-profiling turns on profiling CFLAGS.
+
+2005-05-02 03:12  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Replace static definitions of version numbers with autofuck
+	  macro's. This
+	  should reduce file churn slightly.
+	  
+	  Make use of some auto* magic and replace various function
+	  obfuscation bits
+	  with some md5(1) magic... or other evilness in the absense of
+	  md5(1).
+	  
+	  Nuke various static compilation #define's in favor of some goo
+	  that's going
+	  to be made evident in the following commit to configure.ac.
+	  
+	  Introduce a new integer into struct memcache_ctxt to replace the
+	  use of the
+	  global errno(2) value. When an atomic increment/decrement
+	  command is
+	  executed, the return value will be set to zero and ctxt->errnum
+	  will be set
+	  to ENOENT.
+
+2005-05-02 02:44  sean
+
+	* client/INSTALL: Update the installation instructions to reflect
+	  the use of autofuck instead
+	  of pmk(1).
+
+2005-05-02 02:43  sean
+
+	* client, client/.cvsignore, client/include,
+	  client/include/.cvsignore: Update the list of files to ignore
+
+2005-05-01 23:13  sean
+
+	* client, client/.cvsignore, client/Makefile.am,
+	  client/Makefile.pmk, client/configure.ac, client/doc,
+	  client/doc/.cvsignore, client/doc/Makefile.am, client/include,
+	  client/include/.cvsignore, client/include/Makefile.am,
+	  client/m4, client/m4/.cvsignore, client/m4/Makefile.am,
+	  client/pmkfile, client/regen, client/src, client/src/.cvsignore,
+	  client/src/Makefile.am, client/src/memcache.c, client/test,
+	  client/test/.cvsignore, client/test/Makefile.am,
+	  client/test/benchmark, client/test/benchmark/.cvsignore,
+	  client/test/benchmark/Makefile.am,
+	  client/test/benchmark/benchmark.c, client/test/regress,
+	  client/test/regress/.cvsignore, client/test/regress/Makefile.am:
+	  First pass at switching from pmk(1) to autofuck and friends.
+
+2005-04-30 22:15  sean
+
+	* client/test/regress/regress.c: In one case, use 'localhost'
+	  instead of '127.0.0.1'
+
+2005-04-30 22:14  sean
+
+	* client/Makefile.pmk, client/test/benchmark,
+	  client/test/benchmark/benchmark.c: Add a benchmark program used
+	  to test requests per second. The server list
+	  is still hard-coded, however, but it's a useful start for
+	  debugging
+	  performance calls. I need to find a performance analysis
+	  program that is
+	  useful for IO intensive programs, other than gprof(1). Until
+	  then, this
+	  is helpful.
+
+2005-04-30 20:26  sean
+
+	* client/include/memcache/memcache.h.in: Commit miss for warnings
+	  when debugging is turned was.
+
+2005-04-30 20:17  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Make memcache(3) warning free.
+
+2005-04-30 01:07  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: Ah
+	  ha! Strangeness in latency land. Funny people are these...
+	  people with
+	  green eyes, whirring squabble sounds that look like funny
+	  blinking machines
+	  with wires... evil are they. But that wasn't the problem. If
+	  the buffer
+	  size was too small, it would result in a tiny latency from a
+	  second read(2)
+	  call as well as potentially an additional malloc(3) which seems
+	  to have
+	  irritated the overly hyper performance sensitive folk. *grin*
+	  
+	  Submitted by: Adam Michaels
+
+2005-04-22 19:41  sean
+
+	* client/src/memcache.c: Move the select(2) call to after the
+	  connect(2). Dumb, dumb, dumb, dumb.
+	  errno = ENEEDSLEEP;
+
+2005-04-21 23:29  sean
+
+	* client/src/memcache.c: Use non-blocking IO + select(2) - if it's
+	  available - to implement
+	  a connection timeout. setsockopt(SO_RCVLOWAT) doesn't handle
+	  this.
+
+2005-04-21 23:03  sean
+
+	* client/src/memcache.c: Fix a bug that would pop up if no servers
+	  were available to connect to.
+
+2005-04-21 22:52  sean
+
+	* client/include/memcache/memcache.h.in: Push out a new release
+	  with the minor fixes that I've accumulated. Enter
+	  beta5. And there was much rejoicing.
+
+2005-04-21 22:28  sean
+
+	* client/src/memcache.c: When incrementing/decrementing a key, if
+	  the key is not found, return 0
+	  *and* set errno to ENOENT that way decrementing from 1 to 0 can
+	  be done
+	  successfully and clients can detect success from failure.
+	  
+	  On machines that resolve a hostname to an IPv6 address, but the
+	  host
+	  doesn't support IPv6, silently continue. It is common for
+	  machines to have
+	  an entry in hosts(5) for localhost that resolves to an IPv4 and
+	  IPv6
+	  address. On machines configured like this, people can now
+	  resume using
+	  'localhost' instead of the IPv4 address 127.0.0.1.
+	  
+	  Set a receive timeout to limit times for connect(2) failures.
+
+2005-04-20 00:26  sean
+
+	* client/src/memcache.c: If we're performing a multi-get,
+	  short-circuit the key delegation if there
+	  is only one server and execute the get request immediately.
+
+2005-04-20 00:03  sean
+
+	* client/src/memcache.c: Fix multi-get's internal flags. While
+	  the data was being returned
+	  correctly, the internal flags weren't being set. This had the
+	  effect of
+	  causing mc[m]?_res_found() and other like functions to fail or
+	  return
+	  incorrect values.
+	  
+	  Now (after a bit of testing), push beta4 out the door.
+
+2005-04-19 23:23  sean
+
+	* client/src/memcache.c: Performance tweak. Don't hash a value
+	  that's already been hashed.
+
+2005-04-19 21:14  sean
+
+	* client/pmkfile: Release 1.3.0.beta4
+
+2005-04-19 20:47  sean
+
+	* client/src/memcache.c: Don't copy _flags when doing a multi-get.
+	  Instead, zero the flags out.
+
+2005-04-19 20:46  sean
+
+	* client/test/regress/regress.c: Fix a memory leak that was picked
+	  up in valgrind.
+	* client/pmkfile: Set the CFLAG -pg when we're in debug mode.
+	  This should discourage most
+	  people from using debug where not necessary, as well as it'll
+	  leave behind
+	  nice droppings.
+
+2005-04-19 16:30  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add a trace debug message that executes at the INFO level.
+	  Handy for
+	  debugging.
+
+2005-04-19 16:04  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  mcm_get(3) now queries the correct servers in multi-get requests.
+	  memcache(3) now performs correctly with multi-get requests.
+	  Previously
+	  multi-get would only work on single servers. Single-get
+	  requests always
+	  worked, however.
+
+2005-04-19 06:11  sean
+
+	* client/src/memcache.c: Fix error handling... I'm not adding
+	  '...' support for memcache(3)'s error
+	  handling for a while, I just want to get 1.3 out the door.
+	  Almost there...
+
+2005-04-19 06:08  sean
+
+	* client/src/memcache.c: Do a better job of checking the return of
+	  strtol(3) in the event that the
+	  data being returned is zero. This should quell the remaining
+	  strtol(3)
+	  errors that folks have seen. Entirely my fault: I should've
+	  done a better
+	  job of checking the return values earlier or not used endptr at
+	  all.
+	  
+	  In mcm_server_activate_all(3), only call mcm_server_activate(3)
+	  on servers
+	  that are down. All other server conditions are ignored.
+	  Callers can still
+	  explicitly call mcm_server_activate(3) on their own, though I
+	  can't promise
+	  that there won't be an info message generated due to incorrect
+	  library use.
+
+2005-04-19 00:38  sean
+
+	* client/src/memcache.c: Install a default error function handler
+	  by default.
+
+2005-04-18 20:28  sean
+
+	* client/include/memcache/memcache.h.in: Roll 1.3 beta2
+
+2005-04-18 20:11  sean
+
+	* client/src/memcache.c: Only call the error handler if an error
+	  handler has been set.
+
+2005-04-15 06:12  sean
+
+	* client/src/memcache.c: Ensure that all strings returned by
+	  memcache(3) are null-terminated.
+	  
+	  Pointed out by: cimarron@taylors.org
+
+2005-03-29 20:10  sean
+
+	* client/src/memcache.c: I'd give my left nut to have time_t
+	  defined as the same width on all
+	  systems. Cast accordingly. *kicks OS-X for not being fully
+	  compliant with
+	  FreeBSD*
+
+2005-03-28 20:35  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Promote a handful of warnings to errors (library calls).
+	  
+	  Promote the test message to a warning that way people will see
+	  it by
+	  default if they invoke the test handler.
+	  
+	  Ignore NOTICE and INFO messages by default.
+	  
+	  Push out 1.3.0.beta2
+
+2005-03-28 20:19  sean
+
+	* client/src/memcache.c: Ignore all INFO level messages by default.
+
+2005-03-28 14:45  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: *)
+	  Drop const from a bunch of functions that were passed
+	  memcache_ctxt.
+	  Now using the memcache_ctxt for passing around a backup copy
+	  of the
+	  last command send to the server. This is necessary in the
+	  event that a
+	  server dies and the command needs to be reissued to another
+	  server.
+	  
+	  *) Change the magic hash value from 42 to 0. My engineering
+	  mindset finally
+	  over took my sense of humor and desire to plant eggs (maybe
+	  this is just
+	  a counter-reaction to easter, who knows).
+	  
+	  *) Consolodate looking up of valid servers and connecting to
+	  servers in
+	  mcm_server_connect_next_avail(), which will exhaust a server
+	  list
+	  attempting to find a valid memcache server.
+	  
+	  *) If read(2) or writev(2) fail when communicating with a server,
+	  memcache(3) will no reconnect to the same server, or find
+	  another server
+	  automatically.
+	  
+	  *) Change a bunch of MCM_(ERR|WARN)() macros to their X
+	  counterpart since
+	  there is no errno attached to the warning.
+
+2005-03-27 23:24  sean
+
+	* client/src/memcache.c: Cleanup handling of read(2) in
+	  mcm_retrieve_data() such that it will now
+	  reconnect if necessary.
+
+2005-03-27 23:00  sean
+
+	* client/src/memcache.c: When read(2)'ing data from the client:
+	  
+	  *) handle EINVAL by reconnecting (though this shouldn't ever
+	  happen)
+	  *) And throw a few asserts for EBADF, EFAULT, as well as for the
+	  default case
+
+2005-03-26 23:52  sean
+
+	* client/src/memcache.c: Ensure that we're using non-blocking IO
+	  when we start mcm_retrieve_data().
+	  
+	  Put place holders for more grainular error handling for return
+	  codes from
+	  writev(2) and read(2). More on that later today, hopefully.
+
+2005-03-26 23:44  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add a new error flag, MCM_ERR_MC_RECONN. It's an INFO level
+	  notice that
+	  gets thrown when a server connection is re-established.
+
+2005-03-26 23:40  sean
+
+	* client/src/memcache.c: Move calls of mcm_server_block() into the
+	  routines that are actually doing
+	  the IO (ie: mcm_get_line() and mcm_server_send_cmd()).
+	  
+	  Reset errno after we return from executing the error handler.
+	  
+	  Nuke #warning's. They were just too obnoxious and I'd rather
+	  have only
+	  two lines of warnings instead of six from gcc about #warning.
+	  
+	  Stop calling MCM_CSTRLEN() on pointers. sizeof() is fickle and
+	  it doesn't
+	  dereference a void * to figure out the size of a string. Sucks,
+	  but better
+	  than having the application hang because it thinks "stats\r\n"
+	  is the same
+	  length as a pointer, and not 8 bytes long.
+
+2005-03-26 23:01  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Revamp the private function mcm_err() to include a suggested
+	  error level.
+	  
+	  Consolidate all writev(2) calls into mcm_server_send_cmd().
+	  
+	  Handle ECONNRESET in mcm_get_line(). If a client has a long
+	  running
+	  connection to a memcache server and the memcache server resets,
+	  the client
+	  no longer deactivates the server in this case. Instead, the
+	  client resends
+	  the last command issued, and attempts to read(2) the response.
+	  If it fails
+	  a second time, then it deactivates the server.
+	  
+	  Add a few #warning bits to tell users to ignore the warnings.
+	  Mind you,
+	  these #warning snippets cause more output than the two remaining
+	  warnings,
+	  but until I figure out a way to tell gcc(1) to fuck off and die,
+	  I'll
+	  leave these in here for now.
+	  
+	  Convert mcm_server_stats() to using mcm_server_send_cmd().
+
+2005-03-26 19:48  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mc[m]?_server_add5() which is the same as mcm_server_add4()
+	  except that
+	  it takes an optional length argument.
+	  
+	  Add mc[m]?_strnchr() which behaves the same as strchr(3) except
+	  that it also
+	  takes a length arg.
+	  
+	  Implement mc[m]?_server_add4() in terms of mcm_server_add5().
+
+2005-03-26 18:55  sean
+
+	* client/src/memcache.c: Make mcm_err_func() be consistent with
+	  what I'm telling clients to use:
+	  return int32_t.
+
+2005-03-26 18:44  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Futz with the function signatures and initialization routines
+	  for error
+	  handlers.
+
+2005-03-26 18:28  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Correct an interface oversight and obfuscate/hide the interface
+	  to error
+	  handlers behind some predefined macros, similar to what I did
+	  for the
+	  call back interface.
+
+2005-03-26 18:11  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mc[m]?_err_filter_(add|del|get|test)(). This lets clients
+	  ignore error
+	  messages from various error levels. I'm pondering adding a
+	  second filter
+	  for error codes, but haven't done so yet.
+
+2005-03-26 03:28  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mcErrSetup(), mcErrGet(), and mcErrSetupCtxt(). Missing
+	  those was
+	  something of a glaring oversight for the non-context users.
+
+2005-03-26 03:10  sean
+
+	* client/src/memcache.c: Replace a few left over abort(3) calls
+	  with their appropriate MCM_ERR*(*)
+	  counterpart.
+
+2005-03-26 02:59  sean
+
+	* client/include/memcache/memcache.h.in, client/pmkfile,
+	  client/src/memcache.c: Apologizes in advance for the large
+	  commit.
+	  
+	  *) Introduce mc_const. It lets me conditionally const'ify
+	  certain
+	  struct headers without undef'ing every const declaration.
+	  Useful for
+	  making sure client applications do the right thing.
+	  
+	  *) Bump the version number to 1.3.0. I reserve the right to
+	  change
+	  anything before an official announcement, however.
+	  
+	  *) Define a few severity levels for error logging: NONE, INFO,
+	  NOTICE,
+	  WARN, ERR, and FATAL. They're prefixed with either
+	  MCM_ERR_LVL_ or
+	  MC_ERR_LVL_, depending on your application's coding preference.
+	  
+	  *) Add a host of error codes, 22 to be specific. See memcache.h
+	  for
+	  the actual values.
+	  
+	  *) Add struct memcache_err_ctxt. This context is passed to error
+	  handlers when an error occurs. See memcache.h for details.
+	  
+	  *) Add a new member to struct memcache_ctxt, an mcErrFunc.
+	  There is
+	  only one per context, but it is thread safe and lets callers
+	  catch
+	  any error and act accordingly.
+	  
+	  *) Add mc[m]?_err_test() which tests the registered error
+	  handler.
+	  
+	  *) Added an interesting and potentially harmful feature:
+	  memcache(3)'s
+	  very own struct iovec. I did this to quell the various
+	  warnings when
+	  assigning const char *'s to iovec.iov_base (nearly always
+	  defined as
+	  either void * or char *, not const _whatever_). I have a
+	  runtime
+	  test in place, but it's not a compile time test. For now, I've
+	  enabled it by default, but it can be easily turned off.
+	  
+	  *) Hide various personal extensions behind #ifdef's
+	  
+	  *) Add a handful of MCM_ERR*() and MCM_WARN*() macros to aid in
+	  invoking an error response.
+	  
+	  *) Invoke user error handling routines via mcm_err(). It
+	  bundles up
+	  all of the relevant information, creates struct
+	  memcache_err_ctxt,
+	  and passes it to the function.
+	  
+	  *) Add a default error handler.
+	  
+	  *) Replace all warn(), warnx(), err(), errx(), and abort() calls
+	  with
+	  their respective macro that uses the error handler.
+
+2005-03-22 04:59  sean
+
+	* client/include/memcache/memcache.h.in, client/pmkfile: Roll out
+	  1.2.4 as a bug fix release for various brain-o's and bugs. As
+	  things stand, however, seems as though the lib is working well
+	  for most
+	  people... now to get 1.3 out the door w/ its much needed error
+	  handling.
+
+2005-03-22 04:56  sean
+
+	* client/src/memcache.c: size_t's format should be %lu, not %u.
+	  Why can't everyone use compilers
+	  that support the %z format modifier?
+
+2005-03-22 04:42  sean
+
+	* client/src/memcache.c: Fix incorrect handling of buffers often
+	  caused by slow network connections
+	  (often seen on buggy linux machines or OS-X which doesn't have a
+	  functioning
+	  TCP_NOPUSH).
+	  
+	  Submitted by: Richard Cameron <camster@citeulike.org>
+
+2005-03-22 04:34  sean
+
+	* client/src/memcache.c: Fix a memory leak and segfault resulting
+	  from my moving of buffers to be
+	  per-server specific struct from the per-memcache struct.
+	  
+	  Patch by: John McCaskey
+
+2005-03-22 04:17  sean
+
+	* client/INSTALL: Add a bit of errata for gcc 2.X.
+
+2005-03-22 04:06  sean
+
+	* client/test/regress/regress.c: Add note pointing out for
+	  developers to use strlen() instead of
+	  MCM_CSTRLEN().
+	  
+	  Prompted by gripe from: Andy Powell
+
+2005-03-22 03:45  sean
+
+	* client/include/memcache/memcache.h.in: Shuffle around the order
+	  of the memcache ctxt
+
+2005-01-29 20:42  sean
+
+	* client/include/memcache/memcache.h.in: Add a void *misc pointer
+	  to struct memcache_server. Turns out this was the
+	  only structure missing this nugget. Quite handy when it comes
+	  to embedding
+	  memcache(3) in other languages.
+
+2005-01-24 07:36  sean
+
+	* client/include/memcache/memcache.h.in, client/pmkfile: Stamp
+	  1.2.3. This release only includes compile fixes for Leenox
+	  *cough*hoplessly broken platform*cough* and is functionally
+	  identical to
+	  1.2.1.
+
+2005-01-24 07:22  sean
+
+	* client/INSTALL: /libmemcache(3)/memcache(3)/
+
+2005-01-24 07:21  sean
+
+	* client/src/memcache.c: I think the warning message says it best:
+	  
+	  #warning "Working around busted-ass Linux header include
+	  problems: use FreeBSD instead"
+	  #warning "http://www.FreeBSD.org/ - you won't regret it"
+
+2005-01-20 18:21  sean
+
+	* client/include/memcache/memcache.h.in: Stamp 1.2.2 in
+	  memcache.h's version information.
+
+2005-01-20 18:14  sean
+
+	* client/pmkfile: Stamp 1.2.2. There is no functional difference
+	  between 1.2.1 and 1.2.2,
+	  only building of the program has been "fixed" to work with
+	  broken versions
+	  of pmk(1).
+
+2005-01-20 18:13  sean
+
+	* client/pmkfile: In the interim, work around a bug in pmk 0.9.0
+	  and reduce the size of my
+	  comment block by replacing my copyright notice with a reference
+	  to COPYING.
+
+2005-01-20 18:12  sean
+
+	* client/COPYING: Add the license used for this software (MIT
+	  License).
+
+2005-01-20 17:59  sean
+
+	* client/pmkfile: s/CHECK_INCLUDE/CHECK_HEADER/g
+	  
+	  http://sourceforge.net/mailarchive/message.php?msg_id=10609509
+
+2005-01-20 09:03  sean
+
+	* client/pmkfile: Stamp 1.2.1 which fixes a few key brain-o's in
+	  the memory free(3)'ing dept.
+
+2005-01-20 08:54  sean
+
+	* client/src/memcache.c: Fucking Linux/GPL/gcc, why can't it just
+	  curl up and die? Change %zu and
+	  %hu to just %u. This adds a warning that *should* be reasonably
+	  harmless.
+	  
+	  memcache.c:2192: warning: unsigned int format, size_t arg (arg
+	  4)
+
+2005-01-20 08:33  sean
+
+	* client/test/regress/regress.c: Plug small memory leak in
+	  regression tests.
+	  
+	  Pointed out by: John McCaskey
+
+2005-01-20 08:23  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: *)
+	  Add flag to note the need to free a key when it's passed and
+	  strdup()'ed
+	  instead of passed by reference (ie, mcm_req_add() vs
+	  mcm_req_add_ref()).
+	  
+	  *) Use mcm_req_add_ref() in mcm_aget() and mcm_arefresh() instead
+	  of mcm_req_add(): no sense in mcmStrdup()'ing a string that
+	  we know isn't
+	  going to change. Unfortunately this introduces a warning,
+	  but the code
+	  is correct because GCC can't see the logic and use of the
+	  flag in struct
+	  memcache_res's _flags member.
+
+2005-01-11 11:23  sean
+
+	* client/include/memcache/memcache.h.in: Add a void *misc pointer
+	  to struct memcache_req and struct memcache_res.
+
+2005-01-11 11:16  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Move various buffer orriented struct memcache members to struct
+	  memcache_server in preparation for support of the non-blocking IO
+	  scatter/gather multi-get scheme described on the memcached@
+	  mailing list.
+	  This transion deferrs initialization of the buffer from creation
+	  of struct
+	  memcache, to the creation of struct memcache_server *and*
+	  increases the
+	  memory overhead to be: buffer size * number of servers. The
+	  default buffer
+	  is still 2KB.
+
+2005-01-10 21:34  sean
+
+	* client/src/crc32_table.h, client/src/memcache.c: For the longest
+	  time, this gnarly crc32 prebuilt table has been a rather
+	  large eye sore. Fix by moving said table into it's own header
+	  file and
+	  include accordingly.
+	  
+	  With crc32 table (and it's hex values gone), continue my
+	  aspell(1) sweep
+	  and tidy up some type-o's. This is what I get for either having
+	  brain-o's,
+	  or for typing with a largish bandage on my index finger. I'll
+	  be quite
+	  happy when I'm no longer EDOGBYTE errors (pun intended). *sigh*
+
+2005-01-10 10:31  sean
+
+	* client/src/memcache.c: Peremptev spel chek run,
+
+2005-01-10 10:25  sean
+
+	* client/include/memcache/memcache.h.in: Run aspell(1) over
+	  memcache.h.
+	  
+	  Prompted by: Evan Martin's 's/strickly/strictly/' reminder. :)
+
+2005-01-09 23:40  sean
+
+	* client/pmkfile: Release 1.2.0
+
+2005-01-09 23:34  sean
+
+	* client/Makefile.pmk, client/pmkfile: Update make release targets
+	  to use pmk(1) detected paths for variables.
+	  This shouldn't effect anyone byt me since the various binaries
+	  aren't
+	  required for anything but release engineering.
+
+2005-01-09 22:58  sean
+
+	* client/Makefile.pmk: Update release target to rm(1) target via
+	  sudo(1).
+
+2005-01-09 09:08  sean
+
+	* client/Makefile.pmk: Spell cvs2cl.pl as cvs2cl. I should have
+	  pmk detect this, but I'm too lazy
+	  to fix this now.
+
+2005-01-09 09:03  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Don't hash to find the remote server when there is only one live
+	  server.
+	  This should shave a few CPU cycles for folks who only have one
+	  server up.
+	  
+	  Add a new function, mc[m]?_req_add_ref(). mc[m]?_req_add_ref()
+	  behaves
+	  identically to the way mc[m]?_req_add() used to.
+	  mc[m]?_req_add() now
+	  mc[m]?_strdup()'s the key to be safe. mc[m]_req_add_ref() uses a
+	  reference instead of a copy. This was a performance/safety
+	  issue that I
+	  felt was best to err on the safe side unless someone goes out of
+	  their way
+	  to understand the dangers/benefits of the _ref() version.
+
+2005-01-04 21:35  sean
+
+	* client/Makefile.pmk, client/include/memcache/memcache.h.in,
+	  client/pmkfile, client/test/regress/regress.c: Copyright bump:
+	  add 2005
+
+2005-01-04 20:44  sean
+
+	* client/test/regress/regress.c: Use three servers again and make
+	  use of mc_server_add4() to make this
+	  possible again.
+
+2005-01-04 20:43  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mc[m]?_server_add4(). Takes a host argument in the form of:
+	  "127.0.0.1:11211". Should be useful for a number of different
+	  applications, not the least of which is config files.
+	  
+	  Add mc[m]?_strndup(). Copies at most len bytes and adds a '\0'
+	  padding
+	  character. Handy. Wish this was a part of the standard C
+	  string lib.
+	  mcm_strdup() is now implemented in terms of mcm_strndup().
+	  
+	  Change mc[m]?_str[n]?dup() to use the atomic malloc instead of
+	  the normal
+	  malloc. Just an optimization/correctness thing for GC'ed
+	  environments.
+	  
+	  It's starting to smell alot like release time...
+
+2005-01-04 20:14  sean
+
+	* client/include/memcache/memcache.h.in: Fix the callback
+	  interface (was only broken for a revvision) and prevent
+	  future brokeness by changing the signature to be defined in
+	  terms of the
+	  existing MD5 macros. I should've done that from moment one.
+
+2005-01-04 20:12  sean
+
+	* client/Makefile.pmk: Add .h as a build dependency for .c files.
+	  
+	  Add memcache.[ch] as a build dependency for the regression tests.
+
+2005-01-04 20:01  sean
+
+	* client/include/memcache/memcache.h.in: Add a "void *misc" struct
+	  member to struct memcache. Primary use is for
+	  embedding memcache(3) in other programming languages. Please
+	  note that
+	  memcache(3) will never touch this pointer for any purpose.
+	  
+	  As promised, change the md5's for the callback interface.
+	  
+	  Reorder some of struct memcache and tweak wording.
+
+2005-01-04 19:48  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add a few version functions:
+	  
+	  mc[m]?_reldate() Returns a numeric version of the date the
+	  library
+	  version was released: 20050104
+	  
+	  mc[m]?_vernum() Returns a numeric version of the library: 010200
+	  
+	  mc[m]?_version() Returns a string version: "1.2.0"
+	  
+	  Add a few matching #define's too:
+	  
+	  MEMCACHE_VER
+	  MEMCACHE_VERNUM
+	  MEMCACHE_RELDATE
+	  
+	  in the event that someone has cpp(1) skills.
+
+2005-01-04 00:41  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Expose mc[m]?_server_new() to the public. Another useful
+	  function for
+	  OOP language wrappers. Change the default inits from
+	  memcache_server_new()
+	  to memcache_server_add3(). This may bite a few people who want
+	  a default
+	  timeout that's non-zero for all servers, but one. This should
+	  be rare
+	  though.
+
+2005-01-04 00:15  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Expose mc[m]?_strdup() as public APIs since it seems as though
+	  non-braindamaged versions exist with regards to memory context
+	  sensitive
+	  APIs (ie, ruby).
+
+2005-01-03 22:27  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add a new way of adding a server via:
+	  
+	  int mcm_server_add3(const struct memcache_ctxt *ctxt, struct
+	  memcache *mc, struct memcache_server *ms);
+	  int mc_server_add3(struct memcache *mc, struct memcache_server
+	  *ms);
+	  
+	  Useful when writing OOP language wrappers. mc[m]?_server_add2()
+	  is
+	  implemented in terms of mc[m]?_server_add3().
+
+2004-12-29 19:58  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Make mc[m]?_server_free() public. No one should use this, but
+	  it's handy
+	  for my ruby bindings, so someone else may find a use/need for
+	  this as well.
+
+2004-12-29 18:18  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Further my quest to piss off as many users as possibly by
+	  changing the API
+	  for various memory context functions by removing the need for a
+	  strdup(3)-like function. This was stupid and I should've
+	  provided a static
+	  version from day one. Correct this oversight. I wonder what
+	  other API
+	  changes I should make before the 1.2.0 release to get this over
+	  with as
+	  soon as possible.
+
+2004-12-25 02:34  sean
+
+	* client/src/memcache.c: When creating a new memory context, don't
+	  check to see if an atomic malloc
+	  function was provided. Instead rely on setup ctxt to check to
+	  see if one
+	  was provided and rely on its logic instead. If an atomic malloc
+	  function
+	  is not specified, use the non-atomic malloc function. Atomic vs
+	  non-atomic
+	  malloc functions only matter when using memcache(3) in a GC
+	  context.
+
+2004-12-25 02:02  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mc[m]?_server_disconnect() and
+	  mc[m]?_server_disconnect_all().
+	  
+	  Internally, make use of the static function
+	  memcache_server_init().
+
+2004-12-25 02:00  sean
+
+	* client/Makefile.pmk: If we have to rebuild the Makefile, throw
+	  in the debug flags.
+
+2004-12-25 01:58  sean
+
+	* client/test/regress/regress.c: Disconnect from the server before
+	  we loop. No need to do this, but I want
+	  this test in here to make sure things work right.
+
+2004-12-25 01:35  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Continue my quest to piss of users and rename
+	  mc[m]?_find_server() to
+	  mc[m]?_server_find(). Apologies to all for this, but I'd rather
+	  get this
+	  kind of consistency work in now as opposed to gimping along an
+	  API that
+	  isn't 100% right.
+
+2004-12-25 01:31  sean
+
+	* client/Makefile.pmk: Have the distclean target actually remove
+	  release targets.
+
+2004-12-23 22:34  sean
+
+	* client/binary_protocol.txt, client/doc, client/doc/memcache.4:
+	  Add memcache.4, an nroff replacement of the binary protocol
+	  document.
+	  Granted the mackup is terrible and should be replaced with
+	  proper mdoc(7)
+	  markup. That'll probably happen when I add memcache.3 to the
+	  mix. document.
+	  Granted the mackup is terrible and should be replaced with
+	  proper mdoc(7)
+	  markup. That'll probably happen when I add memcache.3 to the
+	  mix. document.
+	  Granted the mackup is terrible and should be replaced with
+	  proper mdoc(7)
+	  markup. That'll probably happen when I add memcache.3 to the
+	  mix. document.
+	  Granted the mackup is terrible and should be replaced with
+	  proper mdoc(7)
+	  markup. That'll probably happen when I add memcache.3 to the
+	  mix.
+
+2004-12-22 22:37  sean
+
+	* client/Makefile.pmk, client/pmkfile: Change the way I handle
+	  release numbering so it's all in one file.
+
+2004-12-22 22:22  sean
+
+	* client/pmkfile: Bump library version to 1.2.
+
+2004-12-22 22:21  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Piss more people off (sorry!!!), but hopefully not. Rename
+	  mc[m]?_deactivate_server() to mc[m]?_server_deactivate().
+	  
+	  Add mc[m]?_server_activate_all() which iterates through all
+	  available
+	  servers and activates servers disabled servers.
+
+2004-12-22 21:49  sean
+
+	* client/Makefile.pmk: Only remove a release tarball if one
+	  exists. This saves me from typing in
+	  my password for sudo(1) when there's nothing there.
+
+2004-12-22 21:43  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Change the API for mc[m]?_flush_all(). This is a better
+	  interface and
+	  more flexible. People should be able to figure out a server on
+	  their own
+	  using the existing API: no sense in providing duplicate
+	  functionality at
+	  the expense of consistency.
+
+2004-12-22 21:23  sean
+
+	* client/include/memcache/memcache.h.in, client/pmkfile: Remove
+	  external dependency on sys/queue.h by including the necessary
+	  TAILQ_* macros in memcache.h. This brings with it the BSD
+	  license, which
+	  isn't a big deal, but not ideal. Given I'm only using the
+	  TRASHIT,
+	  TAILQ_HEAD, TAILQ_ENTRY, TAILQ_FIRST, TAILQ_NEXT, TAILQ_INIT,
+	  TAILQ_INSERT_TAIL, and TAILQ_REMOVE macros, I really should just
+	  replace
+	  this with a cleanroom implementation... problem being the source
+	  code
+	  compatibility for folks may not be so friendly.
+	  
+	  Remove detection for sys/queue.h now that it's no longer needed.
+
+2004-12-21 18:32  sean
+
+	* client/binary_protocol.txt: Add a TODO list of things left to
+	  accomplish.
+	  
+	  Add a Name Space ID to STORE and FETCH Packets.
+	  
+	  Make the Client Flags required in FETCH Packets.
+	  
+	  Add an error code signifying that a virtual bucket doesn't exist
+	  on this
+	  server (ie, you've got the wrong server).
+	  
+	  Add a FLUSH Packet.
+
+2004-12-21 06:04  sean
+
+	* client, client/.cvsignore: Ignore the regress program.
+
+2004-12-20 21:54  sean
+
+	* client/test/regress/regress.c: Fix bug in regression tests.
+	  Guess I should've read the warning I wrote in
+	  memcache.h.
+
+2004-12-20 21:53  sean
+
+	* client, client/.cvsignore: Add ChangeLog to the list of ignored
+	  files
+
+2004-12-20 21:52  sean
+
+	* client/Makefile.pmk: Dynamically create a changelog for every
+	  release.
+
+2004-12-20 21:51  sean
+
+	* client/ChangeLog: Keeping a ChangeLog in CVS was a stupid idea.
+
+2004-12-20 21:50  sean
+
+	* client/test/regress/regress.c: Add a set of callback tests.
+	  
+	  Use MCM_CSTRLEN() instead of strlen(3).
+
+2004-12-20 21:47  sean
+
+	* client/ChangeLog: Add an announcement for when I added the
+	  ChangeLog.
+
+2004-12-20 21:46  sean
+
+	* client/ChangeLog: Add a ChangeLog.
+	  
+	  Requested by: many, many, thousands - scores even! - of people.
+
+2004-12-20 21:41  sean
+
+	* client/include/memcache/memcache.h.in: Fix up some comments.
+
+2004-12-20 21:38  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: *)
+	  Add a globally defined MCM_CSTRLEN() macro that uses sizeof()
+	  instead of
+	  strlen() to find the size of a string. This only works for
+	  const char *
+	  strings that are compiled in to the binary (ie, do:
+	  MCM_CSTRLEN("foo")
+	  but don't do: MCM_CSTRLEN(key)).
+	  
+	  *) Add fetch callback functionality. All get/refresh commands
+	  can now
+	  execute a callback. This adds zero overhead in the event
+	  that a user
+	  doesn't want callbacks. Performance is the name of the game
+	  here. See
+	  the following commit to regress.c for an example. Callbacks
+	  are
+	  registered through the mc[m]?_res_register_fetch_cb()
+	  function.
+	  
+	  *) Internally, use MCM_CSTRLEN() instead of CSTRLEN().
+	  
+	  *) Set the attempted bit after we call mcm_retrieve_data().
+	  
+	  *) Add stats for refresh bits.
+
+2004-12-20 20:43  sean
+
+	* client/Makefile.pmk: Only run the regression test suite once,
+	  not 1000 times. If someone wants
+	  to, they'll run the command by hand.
+
+2004-12-20 20:38  sean
+
+	* client/test/regress/regress.c: Fixup regress.c to match my
+	  coding standards. Various whitespace fixes,
+	  remove a global variable, etc.
+
+2004-12-20 18:36  sean
+
+	* client/include/memcache/memcache.h.in: Um, our interface has
+	  sufficiently diverged from libxml, so I want to avoid
+	  explicitly saying we're using a similar model to libxml. We
+	  were, but
+	  aren't any more. Only CVS will know the whole truth.
+
+2004-12-20 18:28  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mc[m]?_res_attempted(), mc[m]?_res_found().
+	  mcm_res_attempted()
+	  returns 1 if the given response object has been through a get
+	  attempt.
+	  mcm_res_found() returns 1 if a given response object contains
+	  valid data.
+	  
+	  Minor whitespace cleanup from John McCaskey's patches.
+	  
+	  Shuffled a ton of the header around to allow for the next
+	  commit, a
+	  callback interface.
+
+2004-12-20 18:22  sean
+
+	* client/INSTALL, client/pmkfile: Rename the switch debug_cflags
+	  to just debug. pmk -e debug is much more
+	  sane.
+
+2004-12-18 07:51  sean
+
+	* client/binary_protocol.txt: Point the reader in the direction of
+	  the STORE Packet when reading about
+	  the various bits in the DATA Packet.
+	  
+	  Per gripe from: Richard 'toast' Russo <russor@msoe.edu>
+
+2004-12-18 07:41  sean
+
+	* client/test/regress/regress.c: Add additional regression tests
+	  from John McCaskey. These are most helpful
+	  and will hopefully be added to and will keep folks out of
+	  trouble.
+
+2004-12-18 07:40  sean
+
+	* client/src/memcache.c: Small fix from John McCaskey that allows
+	  multi-get's to populate their
+	  appropriate struct. As things were, all data was ending up in
+	  the first
+	  key. This problem has only existed since rc1 and wasn't present
+	  in the
+	  past.
+
+2004-12-17 01:00  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Change MC_RES_* to MCM_RES_*. Alias MC_RES_* to its MCM_RES_*
+	  counter part.
+	  This change was done for consistencies sake so that people can
+	  search for
+	  mc_* or MC_* in their code and replace it safely with mcm_* or
+	  MCM_*.
+
+2004-12-17 00:51  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Add mcMemFreeCtxt(3).
+
+2004-12-16 23:20  sean
+
+	* client/src/memcache.c: Remove useless check.
+
+2004-12-16 22:55  sean
+
+	* client/Makefile.pmk: Add a sudo when removing a release.
+
+2004-12-16 22:53  sean
+
+	* client/INSTALL: Add a note about building with debug flags
+
+2004-12-16 22:52  sean
+
+	* client/Makefile.pmk: Move release name further up in
+	  Makefile.pmk and make distclean remove
+	  a released local copy.
+
+2004-12-16 22:49  sean
+
+	* client/include/memcache/memcache.h.in: Crap, type-o. Forgot a
+	  '*' in a function pointer.
+
+2004-12-16 22:46  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: *)
+	  Add mcMallocAtomic back to struct memcache_ctxt. Now that I
+	  know what
+	  "atomic malloc" is supposed to do, make heavy use of it to
+	  speed up the
+	  case where a calling program has garbage collection (ie,
+	  boehm).
+	  
+	  *) Convert the appropriate calls from mcMalloc() to
+	  mcMallocAtomic().
+	  Basically do this in all places where we're not allocating a
+	  struct.
+	  
+	  *) This breaks API, so it's best to get this out of the way
+	  where possible.
+
+2004-12-16 22:25  sean
+
+	* client/Makefile.pmk: Add a few patterns to the distclean target.
+
+2004-12-16 22:17  sean
+
+	* client/pmkfile: When debugging, having the -g flag in the list
+	  of CFLAGS is damn handy.
+
+2004-12-16 22:16  sean
+
+	* client/binary_protocol.txt: Various updates to the binary
+	  protocol document.
+
+2004-12-16 22:15  sean
+
+	* client, client/.cvsignore: Add a few files to ignore
+	  (.emacs.desktop, .gdb_history)
+
+2004-12-16 22:14  sean
+
+	* client/test, client/test/regress, client/test/regress/regress.c:
+	  Add a basic regression test suite.
+
+2004-12-16 22:12  sean
+
+	* client/include/memcache/memcache.h.in: Update a few comments
+	* client/Makefile.pmk: *) Add the CFLAGS to the linking process
+	  when building a shared object.
+	  
+	  *) Add a reset, test, and regress target for development
+
+2004-12-16 22:07  sean
+
+	* client/src/memcache.c: > Addition of function mcm_retrieve_data,
+	  which replaces part of the
+	  > code in mcm_fetch_line, as well as the code in mcm_get_line
+	  when
+	  > performing single or multi get commands. This command checks
+	  data is it
+	  > is retrived for the VALUE key flags bytes\r\n lines and then
+	  ensures
+	  > that the amount of data read matches up with they recieved
+	  bytes values.
+	  > This is the only safe way to read data as assuming the \r\n is
+	  the end
+	  > of a response or even that END\r\n is the end is unsafe as the
+	  data
+	  > itself may be arbitrary binary data.
+	  
+	  Submitted by: John McCaskey <johnm@klir.com>
+	  Minor Editorializations/tweaks: sean
+
+2004-12-16 21:54  sean
+
+	* client/src/memcache.c: Update to mcm_get_line(3). In the words
+	  of the patch author:
+	  
+	  *) removing the re-alignment of the mc->buf that was in your
+	  original
+	  code, but was made obsolete by my original changes to read
+	  everything
+	  the very first call to mcm_get_line, no need to realign if we
+	  aren't
+	  going to be reading anymore, just wastes cpu cycles.
+	  
+	  *) changing the detection of a read of exactly the number of
+	  bytes that
+	  was allowed to only double the buffer, but not immediatley
+	  cause another
+	  read() as its possible we are at the end. I realized that it
+	  would be
+	  better to just make room, then continue on to the check for
+	  the \r\n,
+	  and only if it is not there read more. This eliminates the
+	  scenario of
+	  an attempted read with no more data that we had previously
+	  since my
+	  first update.
+	  
+	  *) check for "\r\n" at the end of the read data and assume if it
+	  is
+	  there that we are done reading. This is not 100% safe for a
+	  get command
+	  or for the stats command. The get command is handled by the
+	  next patch
+	  which makes it not use mcm_get_line, the stats command I'm
+	  not too
+	  worried about, but my additional checking for END\r\n if the
+	  command is
+	  a stats command could be added back in (I removed it as it
+	  sounded like
+	  you were unsure about this additional checking...)
+	  
+	  Submitted by: John McCaskey <johnm@klir.com>
+
+2004-12-16 21:38  sean
+
+	* client/src/memcache.c: Fix a memory leak in mcm_free(3) where I
+	  wasn't free(3)'ing the server list
+	  itself.
+	  
+	  Submitted by: John McCaskey <johnm@klir.com>
+
+2004-12-15 21:37  sean
+
+	* client/binary_protocol.txt: More revisions.
+
+2004-12-11 17:40  sean
+
+	* client/src/memcache.c: bwahahahahaha! No wonder perl's hashing
+	  function wasn't working right:
+	  I forgot to advance the pointer. This makes much more sense now.
+	  
+	  Submitted by: Bob Starr <rstarr@laserbeans.com>
+
+2004-12-09 17:30  sean
+
+	* client/binary_protocol.txt: Flush out some of the description of
+	  the response packet. Rename the
+	  ERROR Packet the RESPONSE Packet. Rename the old RESPONSE
+	  Packet to the
+	  DATA Packet.
+
+2004-12-08 23:53  sean
+
+	* client/src/memcache.c: Fix a few errors with the reading of data.
+	  
+	  Submitted by: John McCaskey <johnm@klir.com>
+
+2004-12-08 22:17  sean
+
+	* client/Makefile.pmk: The install target should always get
+	  executed.
+
+2004-12-08 22:16  sean
+
+	* client/binary_protocol.txt: Commit my first whack at the binary
+	  protocol. I think I forgot a DELETE
+	  Packet. *blush* I'll have to convert this to nroff(7)/mdoc(7)
+	  at some
+	  point. Text just sucks.
+
+2004-12-08 19:57  sean
+
+	* client/Makefile.pmk, client/pmkfile: Update for the 1.1 release.
+	  Going to send this out for testing for a few
+	  days first before I release it.
+
+2004-12-08 19:56  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c: *)
+	  Move to having multiple memory contexts and add its supporting
+	  API.
+	  *) Nuke calls of sizeof("foo") - 1 and replace with the macro
+	  CSTRLEN("foo")
+
+2004-12-08 00:36  sean
+
+	* client/pmkfile: Only look for pmk if we're in debug mode. Most
+	  users don't need pmk anyway.
+
+2004-12-08 00:27  sean
+
+	* client/Makefile.pmk: Release 1.0.2
+
+2004-12-08 00:26  sean
+
+	* client/INSTALL: Add a basic INSTALL file
+
+2004-12-08 00:25  sean
+
+	* client/src/memcache.c: Fix a few critical bugs with realloc(3)
+	  and in the case where a newline
+	  hasn't been found in GET_INIT_BUF_SIZE bytes.
+	  
+	  Submitted by: John McCaskey <johnm@klir.com>
+
+2004-12-07 19:20  sean
+
+	* client/src/memcache.c: Ah ha! The strlen() -> sizeof()
+	  operation has completed! This should yield
+	  a small performance improvement, hopefully.
+
+2004-12-07 19:12  sean
+
+	* client/include/memcache/memcache.h.in, client/src/memcache.c:
+	  Fix a rather nasty and large bug with the free on delete
+	  handling. Instead
+	  of using:
+	  
+	  if (res->_flags & (MC_RES_FREE_ON_DELETE |
+	  MC_RES_NO_FREE_ON_DELETE)) {
+	  
+	  which would return true if *either* flag was set, use the more
+	  precise and
+	  correct version:
+	  
+	  if (res->_flags & (MC_RES_FREE_ON_DELETE |
+	  MC_RES_NO_FREE_ON_DELETE) ==
+	  (MC_RES_FREE_ON_DELETE | MC_RES_NO_FREE_ON_DELETE)) {
+	  
+	  which solves the problem with mc_aget(3) and likely a host of
+	  other bugs.
+
+2004-12-07 19:05  sean
+
+	* client/Makefile.pmk: Add a release target.
+
+2004-12-07 01:22  sean
+
+	* client/Makefile.pmk: Bunch of little fixes.
+
+2004-12-07 01:21  sean
+
+	* client, client/.cvsignore: Ignore .dylib and .so files
+
+2004-12-07 01:17  sean
+
+	* client, client/.cvsignore, client/Makefile.pmk, client/include,
+	  client/include/memcache, client/include/memcache/memcache.h.in,
+	  client/pmkfile, client/src, client/src/memcache.c: I'm tired of
+	  chasing bugs in this due to improper version control. Add to
+	  my corporate CVS repository until such time as its incorporated
+	  into
+	  the official memcached(8) repository.
+
+2004-12-07 01:17  sean@gigave.com
+
+	* client, client-branches, tags: New repository initialized by
+	  cvs2svn.
+

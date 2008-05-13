@@ -1,0 +1,10 @@
+Build instructions:
+
+% cd libmemcache-x.y.z
+% ./configure
+% make
+% sudo make install
+
+
+To compile with debugging, profiling, or other options, look at the
+output from `./configure --help`
