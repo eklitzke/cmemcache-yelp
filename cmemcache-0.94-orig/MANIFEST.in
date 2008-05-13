@@ -1,0 +1,1 @@
+include VERSION README COPYING INSTALL *.html *.css

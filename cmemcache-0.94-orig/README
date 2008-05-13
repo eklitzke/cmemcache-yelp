@@ -1,0 +1,159 @@
+.. -*- mode: text; coding: utf-8 -*-
+.. $Id: README 432 2008-05-11 03:46:29Z gijsbert $
+
+==================================
+ Python extension for libmemcache
+==================================
+
+.. contents::
+..
+    1  Description
+    2  Motivation
+    3  Dependencies
+    4  Download
+    5  To do
+    6  Known Bugs
+    7  Copyright and License
+    8  Author
+
+Description
+===========
+
+Python extension for `libmemcache <http://people.freebsd.org/~seanc/libmemcache>`_, the C
+API to `memcached <http://www.danga.com/memcached/>`_. cmemcache API is very similar to
+`python-memcache <ftp://ftp.tummy.com/pub/python-memcached/>`_, except for some return
+codes which follow libmemcache conventions.
+
+cmemcache is about 2 times faster then python-memcache with short key names (8
+characters), faster with larger key names.
+
+Motivation
+==========
+
+.. raw:: html
+   :file: ../gijsbert.org/vads.html
+
+This extension was created after doing some timings on a simple session caching scheme
+where I noticed that python-memcache was 'only' three times as fast as PostgreSQL. I
+expected it to be faster than that, since PostgreSQL does a lot more than memcached. It
+was suggested that it was perhaps python-memcache, which for instance gets the initial
+part of the message from memcached byte for byte. After discovering libmemcache it seemed
+pretty straight forward to create an extension on top of that.
+
+cmemcache has 2 clients: StringClient and Client. StringClient is the extension that only
+supports python strings for values. The api was copied from python-memcache, except that
+it excepts strings only. Client is a module that implements caching of arbitrary python
+objects using Pickle on top of the StringClient. This code is a copy/paste from
+python-memcache. Most of the test code in `test.py <test.py>`_ is run on the cmemcache
+Client and the python-memcache Client to make sure that they are interchangeable. Although
+I have not tested this but it should be possible to mix cmemcache and python-memcache
+clients in a running system as well, since they use the same constants for encoding object
+types.
+
+The speed difference would be less if the memcached protocol would be changed to precede
+the reply header with its size. A client could then read the header size, read the full
+header (in one read), parse header to get the data size, and read data (this is already
+done in one read).
+
+Dependencies
+============
+
+- `Python <http://www.python.org>`_
+- `libmemcache <http://people.freebsd.org/~seanc/libmemcache>`_ (using version 1.4.0.rc2,
+  not sure which is required)
+
+Download
+========
+
+- `Download </downloads/cmemcache/>`_
+
+To do
+=====
+
+- use mc_req_add_ref to avoid copy of key
+- add performance test to test.py
+
+Known Bugs
+==========
+
+cmemcache:
+
+- Aborting libmemcache errors are not converted into python exceptions.
+
+libmemcache:
+
+- set_servers with the wrong port number causes a segfault (in libmemcache). See commented
+  out testing code in test.py.
+
+- mc_err_filter_add() broken. This results in warnings on add() and replace().
+
+  This is fixed by applying the patch from the download section.
+
+- libmemcache-1.4.0.rc2 is not compatible with memcached 1.2.1, this results in get_stats
+  returning no stats.
+
+- start memcached, create Client, kill memcached, start memcached, do a get() and python
+  process exits, with messages like::
+
+    [ERROR@1170236923.979369] mcm_buf_read():361: read(2) failed: Operation now in progress:
+    server unexpectedly closed connection
+
+  libmemcache does an exit on severe errors. It is possible to install an error handler
+  that could change the severity to not exit and then the python extension could throw a
+  python exception. However, I do not know if libmemcache will recover correctly.
+
+  I do not have time at the moment to try and fix this.
+
+  Reported by Mark and Philip, 31/01/2007.
+
+Changes
+=======
+
+Versions:
+
+0.94
+  Added missing debuglog() implementation, copy/paste error from memcache.py. get() now
+  returns None on all error cases. Reported by Simon Law.
+
+  Fixed some memory leaks in get_multi().
+
+  Fixed get_multi() return values for Client. All results would be returned as 
+  strings, instead of the proper types. Reported and fixed by Alfred J Fazio.
+
+  cmemcache.py uses debuglog() (memcache.py remnant) but debuglog() is not even defined,
+  doh! Reported by Simon Law. His patch uses python module logging, but to avoid
+  dependencies I added the same stderr logger as used in memcache.py. One can override
+  the cmemcache.log variable to install another log function.
+
+0.93
+  Fixed memory leak caused by not Py_DECREF of key and val objects when calling
+  PyDict_SetItem(). Reported and fixed by Alfred J Fazio.
+
+  Allocated my own context and moved from 'mc_*' api to 'mcm_*' api to use. Install error
+  handler to change the 'cont' state of the memcache_err_ctxt object to 'y' to try not to
+  abort on fatal errors. This is an attempt to not crash python on fatal errors from
+  libmemcache, but libmemcache needs considerable changes to make it work. I am not too
+  sure about my libmemcache so I have not released them yet. Code is compatible with
+  libmemcache-1.4.0 though.
+
+0.92
+  Changed return values for set, add, and replace to be the same as memcache.py, ie
+  nonzero on success. Reported by Marek Majkowski.
+
+0.91
+  Remove ``@staticmethod`` from ``_convert`` method to make it python 2.3 compatible.
+
+0.90
+  Initial version.
+
+Copyright and License
+=====================
+
+Copyright (C) 2006-2008  Gijsbert de Haan.
+This code is distributed under the `GNU General Public License <COPYING>`_.
+
+Author
+======
+
+Gijsbert de Haan <gijsbert.de.haan@gmail.com>
+

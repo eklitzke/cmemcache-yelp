@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# $Id: precommit 199 2006-05-09 23:06:13Z gijsbert $
+#
+
+logfn=/tmp/$1.precommit
+date > $logfn
+projects docs $1 >> $logfn
+exit 0

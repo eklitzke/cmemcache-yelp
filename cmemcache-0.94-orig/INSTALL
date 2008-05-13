@@ -1,0 +1,11 @@
+#
+# $Id: INSTALL 233 2006-06-09 13:34:05Z gijsbert $
+#
+
+Python C module interface to memcached.
+
+Requirements:
+
+  - libmemcache
+
+Build and install: python setup.py install
