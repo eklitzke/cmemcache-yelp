@@ -1,0 +1,9 @@
+This is some small changes to the cmemcache client to make it compatible with
+the changes that we (at Yelp) have made to the python client. Right now all
+this adds is a new attribute on the Client object, recv_bytes, that is set to
+the number of bytes that were received over the wire by a get request (maybe
+some improved log handling will go in later, but it looks like that is much
+better with the latest 0.94 release so maybe not).
+
+The diff against the upstream cmemcache code is very small (just a couple of
+lines) and the changes are probably safe.
