@@ -1,0 +1,5 @@
+* Integrate libketama consistent hashing into the libmemcache code. I sort of
+  looked at this, it looks like there's a handler in libmemcache for hashing
+  and getting the server for a hash, and then libmemcache sets the default
+  values in a global variable. I guess the fix would be to install the
+  libketama handlers in place of the libmemcache ones.
