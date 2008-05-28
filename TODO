@@ -1,5 +1,14 @@
-* Integrate libketama consistent hashing into the libmemcache code. I sort of
-  looked at this, it looks like there's a handler in libmemcache for hashing
-  and getting the server for a hash, and then libmemcache sets the default
-  values in a global variable. I guess the fix would be to install the
-  libketama handlers in place of the libmemcache ones.
+Integrate libketama consistent hashing into the libmemcache code. I sort of
+looked at this, it looks like the cmemcache Client object has an mc_ctxt
+attribute when cast as a CmemcacheObject, and the mc_ctxt is of type (struct
+memcache_ctxt *). In the libmemcace code the process of connecting to the right
+server is a two-part process:
+  hash = ctxt->mcHashKey(ctxt, mc, key, key_len);
+  mcm_server_connect_next_avail(ctxt, mc, hash);
+
+So what we need to do to integrate libketama is to change the mcHashKye
+function to the hashing function used by libketama and to change the
+mcm_server_connect_next_avail to use the mechanism provided by libketama.
+Mostly the mcHashKey function just looks like it's followed by
+mcm_server_connect_next_avail but it seems to be used in a couple of other
+places too, so we need to be careful to update this correctly.

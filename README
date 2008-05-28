@@ -7,3 +7,5 @@ better with the latest 0.94 release so maybe not).
 
 The diff against the upstream cmemcache code is very small (just a couple of
 lines) and the changes are probably safe.
+
+More stuff in the TODO file.
